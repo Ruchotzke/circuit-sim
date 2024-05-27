@@ -41,12 +41,15 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: RelayElements
+    uniqueID: 4115605439
+    locked: 0
   - name: RelayBody
     uniqueID: 2905138835
     locked: 0
   - name: RelaySchematic
     uniqueID: 3307588483
     locked: 0
-  - name: RelayElements
-    uniqueID: 4115605439
+  - name: Switches
+    uniqueID: 4021325531
     locked: 0
