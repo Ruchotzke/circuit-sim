@@ -16,9 +16,18 @@ public class Switch : MonoBehaviour, IInteractable
     [Header("State")] 
     public bool IsEnabled;
 
+    public CircuitNode NC;
+    public CircuitNode NO;
+    public CircuitNode Out;
+
     private void Awake()
     {
         Button.color = IsEnabled ? OnColor : OffColor;
+        
+        /* Generate pins */
+        NC = new CircuitNode(false, false);
+        NO = new CircuitNode(false, false);
+        Out = new CircuitNode(false, false);
     }
 
     public void Toggle()
