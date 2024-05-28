@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class CircuitManager : MonoBehaviour
 {
+
     /* Singleton */
     /// <summary>
     /// The singleton reference for the circuit manager.

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using RelayComputer;
 using UnityEngine;
 
@@ -25,6 +26,15 @@ public class InteractionManager : MonoBehaviour
     public float MinZoom;
     public float ZoomSpeed;
     
+    /* Wiring Variables */
+    [Header("Wiring")] 
+    public Wire pf_Wire;
+    private bool _isWiring;
+    private Wire _rootWire;
+    private Wire _currentHorizontal;
+    private Wire _currentVertical;
+    private Vector2 _wireAnchor;
+
     void Awake(){
         /* Configure Singleton */
         if (Instance == null)
@@ -60,7 +70,7 @@ public class InteractionManager : MonoBehaviour
             {
                 if (found.TryGetComponent(out IInteractable interactable))
                 {
-                    interactable.OnInteract();
+                    interactable.OnInteract(GetWorldMousePosition());
                 }
             }
         }
@@ -97,6 +107,9 @@ public class InteractionManager : MonoBehaviour
         
         /* Detect the change in mouse wheel and zoom */
         HandleZoom();
+        
+        /* If needed, update wiring */
+        if(_isWiring) HandleWiringUpdates();
     }
     
     /// <summary>
@@ -130,5 +143,132 @@ public class InteractionManager : MonoBehaviour
         /* Move the zoom level of the camera */
         float diff = -scroll * ZoomSpeed;
         _camera.orthographicSize = Mathf.Clamp(_camera.orthographicSize + diff, MaxZoom, MinZoom);
+    }
+
+    /// <summary>
+    /// Handle the expansion/navigation of a wire.
+    /// </summary>
+    private void HandleWiringUpdates()
+    {
+        var worldPos = GetWorldMousePosition();
+        
+        /* Update initial direction (perp to original direction) */
+        if (_rootWire.IsVertical)
+        {
+            /* horizontal first */
+            _currentHorizontal.transform.localScale =
+                _currentHorizontal.transform.localScale.WithX(Mathf.Abs(_wireAnchor.x - worldPos.x));
+            _currentHorizontal.transform.position = new Vector3((_wireAnchor.x + worldPos.x) / 2.0f, _wireAnchor.y);
+            
+            /* then vertical */
+            _currentVertical.transform.localScale =
+                _currentVertical.transform.localScale.WithX(Mathf.Abs(_wireAnchor.y - worldPos.y));
+            _currentVertical.transform.position = new Vector3(worldPos.x, (worldPos.y + _wireAnchor.y) / 2.0f);
+        }
+        else
+        {
+            /* vertical first */
+            _currentVertical.transform.localScale =
+                _currentVertical.transform.localScale.WithX(Mathf.Abs(_wireAnchor.y - worldPos.y));
+            _currentVertical.transform.position = new Vector3(_wireAnchor.x, (worldPos.y + _wireAnchor.y) / 2.0f);
+            
+            /* then horizontal */
+            _currentHorizontal.transform.localScale =
+                _currentHorizontal.transform.localScale.WithX(Mathf.Abs(_wireAnchor.x - worldPos.x));
+            _currentHorizontal.transform.position = new Vector3((_wireAnchor.x + worldPos.x) / 2.0f, worldPos.y);
+        }
+    }
+
+    /// <summary>
+    /// Start stringing a wire from a given wire/position.
+    /// </summary>
+    /// <param name="position"></param>
+    /// <param name="source"></param>
+    public void WiringUpdate(Vector2 position, Wire wire)
+    {
+        /* Clamp the position to the grid */
+        position = new Vector2(Mathf.Round(position.x), Mathf.Round(position.y));
+        
+        if (!_isWiring)
+        {
+            /* We are making a new wire */
+            _isWiring = true;
+            _wireAnchor = position;
+            _rootWire = wire;
+            
+            /* Generate a horizontal and vertical wire to use */
+            _currentVertical = Instantiate(pf_Wire);
+            _currentHorizontal = Instantiate(pf_Wire);
+            _currentVertical.name = "WireV";
+            _currentHorizontal.name = "WireH";
+            _currentVertical.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
+            _currentHorizontal.transform.localScale = new Vector3(0f, _currentHorizontal.transform.localScale.y,
+                _currentHorizontal.transform.localScale.z);
+            _currentVertical.transform.localScale = new Vector3(0f, _currentVertical.transform.localScale.y,
+                _currentVertical.transform.localScale.z);
+            _currentHorizontal.transform.position = _wireAnchor;
+            _currentVertical.transform.position = _wireAnchor;
+
+            _currentVertical.Node = _rootWire.Node;
+            _currentHorizontal.Node = _rootWire.Node;
+
+            _currentVertical.gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
+            _currentHorizontal.gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
+        }
+        else
+        {
+            _isWiring = false;
+            
+            /* update the position/size one last time */
+            if (_rootWire.IsVertical)
+            {
+                /* horizontal first */
+                _currentHorizontal.transform.localScale =
+                    _currentHorizontal.transform.localScale.WithX(Mathf.Abs(_wireAnchor.x - position.x));
+                _currentHorizontal.transform.position = new Vector3((_wireAnchor.x + position.x) / 2.0f, _wireAnchor.y);
+            
+                /* then vertical */
+                _currentVertical.transform.localScale =
+                    _currentVertical.transform.localScale.WithX(Mathf.Abs(_wireAnchor.y - position.y));
+                _currentVertical.transform.position = new Vector3(position.x, (position.y + _wireAnchor.y) / 2.0f);
+            }
+            else
+            {
+                /* vertical first */
+                _currentVertical.transform.localScale =
+                    _currentVertical.transform.localScale.WithX(Mathf.Abs(_wireAnchor.y - position.y));
+                _currentVertical.transform.position = new Vector3(_wireAnchor.x, (position.y + _wireAnchor.y) / 2.0f);
+            
+                /* then horizontal */
+                _currentHorizontal.transform.localScale =
+                    _currentHorizontal.transform.localScale.WithX(Mathf.Abs(_wireAnchor.x - position.x));
+                _currentHorizontal.transform.position = new Vector3((_wireAnchor.x + position.x) / 2.0f, position.y);
+            }
+            
+            /* Check, if the vertical/horizontal position is zero, we don't need both wires */
+            if (_currentHorizontal.transform.localScale.x == 0.0f)
+            {
+                Destroy(_currentHorizontal.gameObject);
+                _currentHorizontal = null;
+            }
+            else
+            {
+                _currentHorizontal.Node.Merge(wire.Node);
+                wire.Node = _currentHorizontal.Node;
+                _currentHorizontal.gameObject.layer = LayerMask.NameToLayer("Default");
+            }
+
+            if (_currentVertical.transform.localScale.x == 0.0f)
+            {
+                Destroy(_currentVertical.gameObject);
+                _currentVertical = null;
+            }
+            else
+            {
+                _currentVertical.Node.Merge(wire.Node);
+                wire.Node = _currentVertical.Node;
+                _currentVertical.gameObject.layer = LayerMask.NameToLayer("Default");
+            }
+        }
     }
 }

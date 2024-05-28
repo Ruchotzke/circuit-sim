@@ -11,6 +11,6 @@ namespace RelayComputer
         /// <summary>
         /// An interaction event.
         /// </summary>
-        public void OnInteract();
+        public void OnInteract(Vector2 position);
     }
 }

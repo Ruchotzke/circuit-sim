@@ -36,7 +36,7 @@ public class Switch : MonoBehaviour, IInteractable
         Button.color = IsEnabled ? OnColor : OffColor;
     }
 
-    public void OnInteract()
+    public void OnInteract(Vector2 position)
     {
         Toggle();
     }

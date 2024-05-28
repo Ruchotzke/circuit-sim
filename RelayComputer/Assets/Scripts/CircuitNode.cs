@@ -29,6 +29,8 @@ public class CircuitNode
     /// <param name="other"></param>
     public void Merge(CircuitNode other)
     {
+        if (other == this) return;
+        
         foreach (var item in other.Relays)
         {
             if (!Relays.Contains(item))
@@ -52,5 +54,8 @@ public class CircuitNode
                 Leds.Add(item);
             }
         }
+
+        if (other.IsSource) IsSource = true;
+        if (other.IsGround) IsGround = true;
     }
 }
