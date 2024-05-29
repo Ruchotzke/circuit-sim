@@ -12,7 +12,7 @@ public class Wire : MonoBehaviour, IInteractable
     /// </summary>
     public bool IsVertical => transform.rotation.z != 0;
 
-    public void OnInteract(Vector2 position)
+    public virtual void OnInteract(Vector2 position)
     {
         InteractionManager.Instance.WiringUpdate(position, this);
     }

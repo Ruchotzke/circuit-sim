@@ -13,22 +13,32 @@ namespace RelayComputer
         [Header("Components")] 
         public Transform Switch;
 
-        public CircuitNode CoilA;
-        public CircuitNode CoilB;
-        public CircuitNode Stem;
-        public CircuitNode NO;
-        public CircuitNode NC;
+        public CircuitPin CoilAPin;
+        public CircuitPin CoilBPin;
+        public CircuitPin StemPin;
+        public CircuitPin NOPin;
+        public CircuitPin NCPin;
 
         private bool _switchEnabled;
 
         private void Awake()
         {
             /* generate pins */
-            CoilA = new CircuitNode(false, false);
-            CoilB = new CircuitNode(false, false);
-            Stem = new CircuitNode(false, false);
-            NO = new CircuitNode(false, false);
-            NC = new CircuitNode(false, false);
+            CoilAPin.ParentComponent = gameObject;
+            CoilAPin.Node = new CircuitNode(false, false);
+            CoilAPin.Node.Relays.Add(this);
+            CoilBPin.ParentComponent = gameObject;
+            CoilBPin.Node = new CircuitNode(false, false);
+            CoilBPin.Node.Relays.Add(this);
+            StemPin.ParentComponent = gameObject;
+            StemPin.Node = new CircuitNode(false, false);
+            StemPin.Node.Relays.Add(this);
+            NOPin.ParentComponent = gameObject;
+            NOPin.Node = new CircuitNode(false, false);
+            NOPin.Node.Relays.Add(this);
+            NCPin.ParentComponent = gameObject;
+            NCPin.Node = new CircuitNode(false, false);
+            NCPin.Node.Relays.Add(this);
         }
 
         void UpdateGraphic()

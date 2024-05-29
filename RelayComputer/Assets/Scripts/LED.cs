@@ -12,16 +12,20 @@ public class LED : MonoBehaviour
     [Header("Components")] 
     public SpriteRenderer Bulb;
 
-    public CircuitNode Input;
-    public CircuitNode Output;
+    public CircuitPin InputPin;
+    public CircuitPin OutputPin;
 
     public bool IsOn = false;
 
     private void Awake()
     {
         /* Initialize the pins to their own nodes */
-        Input = new CircuitNode(false, false);
-        Output = new CircuitNode(false, false);
+        InputPin.ParentComponent = gameObject;
+        InputPin.Node = new CircuitNode(false, false);
+        InputPin.Node.Leds.Add(this);
+        OutputPin.ParentComponent = gameObject;
+        OutputPin.Node = new CircuitNode(false, false);
+        OutputPin.Node.Leds.Add(this);
     }
 
     public void UpdateGraphics()

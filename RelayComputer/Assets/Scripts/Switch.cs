@@ -16,18 +16,24 @@ public class Switch : MonoBehaviour, IInteractable
     [Header("State")] 
     public bool IsEnabled;
 
-    public CircuitNode NC;
-    public CircuitNode NO;
-    public CircuitNode Out;
+    public CircuitPin NCPin;
+    public CircuitPin NOPin;
+    public CircuitPin OutPin;
 
     private void Awake()
     {
         Button.color = IsEnabled ? OnColor : OffColor;
         
         /* Generate pins */
-        NC = new CircuitNode(false, false);
-        NO = new CircuitNode(false, false);
-        Out = new CircuitNode(false, false);
+        NCPin.ParentComponent = gameObject;
+        NCPin.Node = new CircuitNode(false, false);
+        NCPin.Node.Switches.Add(this);
+        NOPin.ParentComponent = gameObject;
+        NOPin.Node = new CircuitNode(false, false);
+        NOPin.Node.Switches.Add(this);
+        OutPin.ParentComponent = gameObject;
+        OutPin.Node = new CircuitNode(false, false);
+        OutPin.Node.Switches.Add(this);
     }
 
     public void Toggle()

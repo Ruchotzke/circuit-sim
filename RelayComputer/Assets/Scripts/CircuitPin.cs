@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CircuitPin : MonoBehaviour
+public class CircuitPin : Wire
 {
-    
+    public GameObject ParentComponent;
 }

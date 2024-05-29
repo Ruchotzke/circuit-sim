@@ -187,7 +187,9 @@ public class InteractionManager : MonoBehaviour
     public void WiringUpdate(Vector2 position, Wire wire)
     {
         /* Clamp the position to the grid */
+        position *= 2;
         position = new Vector2(Mathf.Round(position.x), Mathf.Round(position.y));
+        position /= 2;
         
         if (!_isWiring)
         {
