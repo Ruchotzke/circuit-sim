@@ -10,7 +10,7 @@ namespace CircuitSim
         /// </summary>
         /// <param name="nodes"></param>
         /// <returns>A parallel list of voltages for nodes.</returns>
-        public static List<float> Solve(List<Node> nodes, Node ground)
+        public static List<float?> Solve(List<Node> nodes, Node ground)
         {
             /* First, create a list to work through the nodes with, starting at highest voltages */
             List<Node> open = new List<Node>();
@@ -89,10 +89,17 @@ namespace CircuitSim
             Matrix nodeVoltages = system.Solve(voltages);
                 
             /* Convert the result into array form for easy access */
-            List<float> ret = new List<float>();
+            List<float?> ret = new List<float?>();
             for (uint i = 0; i < nodes.Count; i++)
             {
-                ret.Add(nodeVoltages[i, 0]);
+                if (closed.Contains(nodes[(int) i]))
+                {
+                    ret.Add(nodeVoltages[i, 0]);
+                }
+                else
+                {
+                    ret.Add(null);
+                }
             }
 
             return ret;

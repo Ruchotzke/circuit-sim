@@ -32,4 +32,29 @@ public class LED : MonoBehaviour
     {
         Bulb.color = IsOn ? OnColor : OffColor;
     }
+    
+    /// <summary>
+    /// Convert nodes during a merge.
+    /// </summary>
+    /// <param name="from"></param>
+    /// <param name="to"></param>
+    public void RelinkNode(CircuitNode from, CircuitNode to)
+    {
+        if (InputPin.Node == from) InputPin.Node = to;
+        if (OutputPin.Node == from) OutputPin.Node = to;
+    }
+    
+    /// <summary>
+    /// Get the opposing side of this component.
+    /// </summary>
+    /// <param name="source"></param>
+    /// <returns></returns>
+    public CircuitNode GetOpposing(CircuitNode source)
+    {
+        if (InputPin.Node == OutputPin.Node) return null; // avoid infinite loops
+        if (InputPin.Node == source) return OutputPin.Node;
+        if (OutputPin.Node == source) return InputPin.Node;
+            
+        return null;
+    }
 }

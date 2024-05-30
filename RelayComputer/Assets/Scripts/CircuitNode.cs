@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using CircuitSim;
 using RelayComputer;
 
 /// <summary>
@@ -6,12 +7,24 @@ using RelayComputer;
 /// </summary>
 public class CircuitNode
 {
+    public enum NodeStatus
+    {
+        SOLVED,
+        FLOATING,
+        SHORTED,
+    }
+    
     public List<Relay> Relays;
     public List<Switch> Switches;
     public List<LED> Leds;
 
     public bool IsSource;
     public bool IsGround;
+
+    public Node SimNode;
+
+    public float LastVoltage;
+    public NodeStatus Status = NodeStatus.FLOATING;
     
     public CircuitNode(bool isGround, bool isSource)
     {
@@ -37,6 +50,7 @@ public class CircuitNode
             {
                 Relays.Add(item);
             }
+            item.RelinkNode(other, this);
         }
         
         foreach (var item in other.Switches)
@@ -45,6 +59,7 @@ public class CircuitNode
             {
                 Switches.Add(item);
             }
+            item.RelinkNode(other, this);
         }
         
         foreach (var item in other.Leds)
@@ -53,6 +68,7 @@ public class CircuitNode
             {
                 Leds.Add(item);
             }
+            item.RelinkNode(other, this);
         }
 
         if (other.IsSource) IsSource = true;

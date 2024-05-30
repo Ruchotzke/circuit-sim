@@ -89,5 +89,16 @@ namespace CircuitSim
             T2 = node;
             node.ConnectedComponents.Add(this);
         }
+
+        /// <summary>
+        /// Handle merges of nodes around this component.
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        public void RemapComponent(Node from, Node to)
+        {
+            if (T1 == from) T1 = to;
+            if (T2 == from) T2 = to;
+        }
     }
 }
